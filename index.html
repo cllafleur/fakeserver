@@ -1,0 +1,54 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <title>WebSocket demo</title>
+    <style>
+        li {
+            display: block;
+            background-color: lightgray;
+            margin: 5px;
+            border-radius: 5px;
+            padding: 10px;
+            border: 2px solid darkgray;
+        }
+    </style>
+</head>
+
+<body>
+    <script>
+        function writeMessage(msg) {
+            var messages = document.getElementsByTagName('ul')[0],
+                message = document.createElement('li'),
+                content = document.createTextNode(msg);
+            message.innerHTML = msg;
+            messages.insertAdjacentElement("afterbegin", message);
+        }
+
+        function createWS() {
+            var hostname = window.location.host;
+            var ws = new WebSocket("ws://"+hostname+"/echo");
+            return ws;
+        }
+        function initWebSocket(websocket) {
+            websocket.onmessage = function (event) {
+                writeMessage(event.data);
+            };
+            websocket.onclose = function (event) {
+                writeMessage('>>>>> Connection closed');
+                ws = createWS();
+                initWebSocket(ws);
+            }
+            websocket.onopen = function (event) {
+                ws.send('Salut!');
+            };
+        };
+        var ws = createWS();
+        initWebSocket(ws);
+        var messages = document.createElement('ul');
+        document.body.appendChild(messages);
+    </script>
+</body>
+
+</html>
