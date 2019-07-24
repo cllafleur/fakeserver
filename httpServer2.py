@@ -28,9 +28,7 @@ async def handle(request):
     raw_request = await rebuildRawRequest(request)
     await broadcastMessage(request.app['websockets'], raw_request)
 
-    name = request.match_info.get('name', "Anonymous")
-    text = "Hello, " + name
-    return web.Response(text=text)
+    return web.Response(reason='Nice !!')
 
 async def wshandle(request):
     ws = web.WebSocketResponse()
@@ -49,7 +47,9 @@ async def wshandle(request):
 app = web.Application()
 app.add_routes([web.get('/', handle),
                 web.get('/echo', wshandle),
-                web.get('/{name}', handle)])
+                web.get('/{name}', handle),
+                web.post('/', handle),
+                web.post('/{name}', handle)])
 app['websockets'] = []
 
 if __name__ == '__main__':
