@@ -1,4 +1,5 @@
 # examples/server_simple.py
+import time
 from aiohttp import web
 import os
 
@@ -27,7 +28,7 @@ async def handle(request):
         return response
     raw_request = await rebuildRawRequest(request)
     await broadcastMessage(request.app['websockets'], raw_request)
-
+    time.sleep(request.app['responseDuration'])
     return web.Response(reason='Nice !!')
 
 async def wshandle(request):
@@ -44,13 +45,25 @@ async def wshandle(request):
             break
     return ws
 
+async def setResponseDuration(request):
+    duration = int(await request.content.read())
+    request.app['responseDuration'] = duration
+    return web.Response(reason='Duration set !')
+
+async def getResponseDuration(request):
+    duration = request.app['responseDuration']
+    return web.Response(status=200, body=f'{duration}')
+
 app = web.Application()
 app.add_routes([web.get('/', handle),
+                web.get('/settings/responseduration', getResponseDuration),
+                web.put('/settings/responseduration', setResponseDuration),
                 web.get('/echo', wshandle),
                 web.get('/{name}', handle),
                 web.post('/', handle),
                 web.post('/{name}', handle)])
 app['websockets'] = []
+app['responseDuration'] = 0
 
 if __name__ == '__main__':
     web.run_app(app, port=8080)

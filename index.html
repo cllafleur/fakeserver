@@ -18,6 +18,23 @@
 
 <body>
     <script>
+        function setDuratio(sender){
+            var textbox = document.getElementById('responseDuration');
+            var responseDuration = textbox.value;
+            var url = window.location.origin + '/settings/responseduration';
+
+            fetch(url, {
+                method: 'PUT',
+                body: responseDuration
+            });
+        }    
+    </script>
+    <div>
+        <input type="text" id="responseDuration"></input>
+        <input type="button" id="setresponseduration" value="Set response duration"></input>
+    </div>
+    <script>
+        document.getElementById('setresponseduration').addEventListener('click', setDuratio);
         function writeMessage(msg) {
             var messages = document.getElementsByTagName('ul')[0],
                 message = document.createElement('li'),
@@ -44,6 +61,16 @@
                 ws.send('Salut!');
             };
         };
+        function getResponseDuration(){
+            var url = window.location.origin + '/settings/responseduration';
+            fetch(url).then(function(response){
+                return response.text();
+            }).then(function(value){
+                var textbox = document.getElementById('responseDuration');
+                textbox.value = value;
+            });
+        };
+        getResponseDuration();
         var ws = createWS();
         initWebSocket(ws);
         var messages = document.createElement('ul');
